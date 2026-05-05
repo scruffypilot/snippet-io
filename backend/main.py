@@ -12,7 +12,7 @@ def get_track():
     return {
         "title": "Test Song",
         "artist": "Test Artist",
-        "preview_url": "https://example.com/audio.mp3"
+        "preview_url": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
     }
 
 app.add_middleware(
