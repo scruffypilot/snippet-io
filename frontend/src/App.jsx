@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import "./App.css";
 
 function App() {
   const [track, setTrack] = useState(null);
@@ -9,6 +10,7 @@ function App() {
   const [guessCount, setGuessCount] = useState(1);
   const [revealed, setRevealed] = useState(false);
   const guessText = guessCount === 1 ? "round" : "rounds";
+  const snippetDuration = 2 * guessCount - 1;
 
 
   // code to run after page loads
@@ -34,7 +36,7 @@ function App() {
   function playSnippet() {
     if (!audio || startTime === null) return;
 
-    const duration = Math.pow(2, guessCount - 1); // 1, 2, 4, 8
+    const duration = 2 * guessCount - 1; // 1, 3, 5, 7, 9
 
     audio.currentTime = startTime;
     audio.play();
@@ -60,7 +62,7 @@ function App() {
   }
 
   return (
-    <div style={{ padding: 20 }}>
+    <div className="container">
       <h1>Snippet.io</h1>
 
       {track ? (
@@ -77,7 +79,7 @@ function App() {
           )}
 
           <button onClick={playSnippet}>
-            Play Snippet (Guess {guessCount})
+            Play Snippet ({snippetDuration}s)
           </button>
 
           <div style={{ marginTop: 10 }}>
