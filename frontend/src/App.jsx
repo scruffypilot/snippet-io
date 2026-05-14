@@ -7,6 +7,8 @@ function App() {
   const [startTime, setStartTime] = useState(null);
 
   const [guessInput, setGuessInput] = useState("");
+  const [guesses, setGuesses] = useState([]);
+  const [dispGuesses, setDispGuesses] = useState([]); // for display on site itself
   const [guessCount, setGuessCount] = useState(1);
   const [hardMode, setHardMode] = useState(false);
   const [revealed, setRevealed] = useState(false);
@@ -55,14 +57,28 @@ function App() {
   function handleGuess() {
     if (!track) return;
 
-    const isCorrect = guessInput
-      .toLowerCase()
-      .includes(track.title.toLowerCase());
+    const normalizedGuess = guessInput
+    .toLowerCase()
+    .trim();
 
+    const alreadyGuessed = guesses.includes(normalizedGuess)
+
+    if (alreadyGuessed) {
+      alert(`You already guessed "${guessInput.trim()}"!`);      
+      return;
+
+    }
+    const isCorrect = normalizedGuess
+      .includes(track.title.toLowerCase());
+  
     if (isCorrect) {
       setRevealed(true);
     } else {
-      alert("Try again!");
+      if (guessCount < 5) {
+        alert("Try again!");
+        setGuesses([...guesses, normalizedGuess])
+        setDispGuesses([...dispGuesses, guessInput.trim()])
+      }
       setGuessCount(guessCount + 1);
     }
   }
@@ -85,6 +101,7 @@ function App() {
         {!revealed && <p>Guess the song!</p>}
 
         <h2>Round {guessCount} / 5</h2>
+        <h2>Guesses: {dispGuesses.join(", ")} </h2>
 
         {revealed && (
           <div>
