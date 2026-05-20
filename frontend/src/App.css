@@ -89,6 +89,18 @@ p {
   text-align: center;
 }
 
+input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.guess-history {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
 
 /* spacing */
 p {

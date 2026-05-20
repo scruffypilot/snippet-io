@@ -73,15 +73,31 @@ function App() {
   
     if (isCorrect) {
       setRevealed(true);
+      setGuessInput("");
     } else {
       if (guessCount < 5) {
         alert("Try again!");
         setGuesses([...guesses, normalizedGuess])
         setDispGuesses([...dispGuesses, guessInput.trim()])
+        setGuessInput("");
       }
       setGuessCount(guessCount + 1);
     }
   }
+
+  function resetGame() {
+  setGuessInput("");
+  setGuesses([]);
+  setDispGuesses([]);
+  setGuessCount(1);
+  setRevealed(false);
+
+  // set new random start time
+  const maxStart = Math.min(22, audio.duration - 1);
+  const randomStart = Math.random() * maxStart;
+
+setStartTime(randomStart);
+}
 
   return (
   <div className="container">
@@ -95,23 +111,30 @@ function App() {
         <p>The song was:</p>
         <p><strong>{track.title}</strong></p>
         <p>{track.artist}</p>
+        <button onClick={resetGame}>
+          Play Again
+          </button>
       </div>
     ) : (
       <div>
         {!revealed && <p>Guess the song!</p>}
 
         <h2>Round {guessCount} / 5</h2>
-        <h2>Guesses: {dispGuesses.join(", ")} </h2>
 
         {revealed && (
           <div>
             Congratulations! You have guessed the song in {guessCount} {guessText}!
             <p><strong>{track.title}</strong></p>
             <p>{track.artist}</p>
+            <button onClick={resetGame}>
+              Play Again
+              </button>
           </div>
         )}
 
         <div className="toggle-row">
+
+{!revealed && (
   <label className="switch">
     <input
       type="checkbox"
@@ -122,28 +145,51 @@ function App() {
 
     <span className="slider"></span>
   </label>
+)}
 
+{!revealed && (
   <span>
     Hard Mode {hardMode ? "ON" : "OFF"}
   </span>
+)}
 </div>
 
-
+{!revealed && (
         <button onClick={playSnippet}>
           Play Snippet ({snippetDuration}s)
         </button>
+)}
+
+        {dispGuesses.map((guess, index) => (
+  <input
+    key={index}
+    type="text"
+    value={guess}
+    disabled
+  />
+))}
 
         <div style={{ marginTop: 10 }}>
+          {!revealed && (
           <input
             type="text"
             placeholder="Enter your guess..."
             value={guessInput}
             onChange={(e) => setGuessInput(e.target.value)}
+            autoFocus
+            
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleGuess();
+              }
+}}
           />
-
+)}
+{!revealed && (
           <button onClick={handleGuess}>
             Submit Guess
           </button>
+)}
         </div>
       </div>
     )}
