@@ -12,6 +12,7 @@ function App() {
   const [guessCount, setGuessCount] = useState(1);
   const [hardMode, setHardMode] = useState(false);
   const [revealed, setRevealed] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const gameStarted = guessCount > 1;
   const guessText = guessCount === 1 ? "round" : "rounds";
@@ -19,6 +20,9 @@ function App() {
   const hardDuration = guessCount * 0.5;
   const snippetDuration = hardMode ? hardDuration : normalDuration;
   const gameOver = guessCount > 5;
+  const shareString = `Snippet.io ${guessCount}/5\n` +
+  guesses.map(g => (g.correct ? "✅" : "❌")).join("") +
+  "\n\nI played Snippet.io!";
 
 
   // code to run after page loads
@@ -60,8 +64,10 @@ function App() {
     const normalizedGuess = guessInput
     .toLowerCase()
     .trim();
-
-    const alreadyGuessed = guesses.includes(normalizedGuess)
+    
+    const alreadyGuessed = guesses.some(
+      (g) => g.text === normalizedGuess
+);
 
     if (alreadyGuessed) {
       alert(`You already guessed "${guessInput.trim()}"!`);      
@@ -73,11 +79,17 @@ function App() {
   
     if (isCorrect) {
       setRevealed(true);
+      setGuesses([...guesses, {
+          text: normalizedGuess,
+          correct: true
+      }])
       setGuessInput("");
     } else {
       if (guessCount < 5) {
-        alert("Try again!");
-        setGuesses([...guesses, normalizedGuess])
+        setGuesses([...guesses, {
+          text: normalizedGuess,
+          correct: false
+      }])
         setDispGuesses([...dispGuesses, guessInput.trim()])
         setGuessInput("");
       }
@@ -98,6 +110,17 @@ function App() {
 
 setStartTime(randomStart);
 }
+
+// for copying results after game win
+const handleCopy = async () => {
+  await navigator.clipboard.writeText(shareString);
+
+  setCopied(true);
+
+  setTimeout(() => {
+    setCopied(false);
+  }, 2000);
+};
 
   return (
   <div className="container">
@@ -129,6 +152,9 @@ setStartTime(randomStart);
             <button onClick={resetGame}>
               Play Again
               </button>
+              <button onClick={handleCopy}>
+                {copied ? "Copied!" : "Copy Results"}
+                </button>
           </div>
         )}
 
@@ -160,15 +186,19 @@ setStartTime(randomStart);
         </button>
 )}
 
-        {dispGuesses.map((guess, index) => (
-  <input
-    key={index}
-    type="text"
-    value={guess}
-    disabled
-  />
+{/* dynamically created disabled textboxes showing incorrect guesses */}
+{guesses.map((guess, index) => (
+  <div className="guess-row" key={index}>
+    <input
+      type="text"
+      value={guess.text}
+      disabled
+    />
+      <span className="guess-icon">
+      {guess.correct ? "✅" : "❌"}
+    </span>
+  </div>
 ))}
-
         <div style={{ marginTop: 10 }}>
           {!revealed && (
           <input

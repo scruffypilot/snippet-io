@@ -101,6 +101,24 @@ input:disabled {
   margin-bottom: 10px;
 }
 
+.guess-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.guess-row input {
+  height:34px;
+}
+
+.guess-icon {
+  font-size: 20px;
+  align-items:center;
+  justify-content:center;
+  height:34px;
+  transform:translateY(7px);
+}
+
 
 /* spacing */
 p {
