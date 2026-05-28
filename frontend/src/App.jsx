@@ -5,6 +5,7 @@ function App() {
   const [track, setTrack] = useState(null);
   const [audio, setAudio] = useState(null);
   const [startTime, setStartTime] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const [guessInput, setGuessInput] = useState("");
   const [guesses, setGuesses] = useState([]);
@@ -18,12 +19,17 @@ function App() {
   const guessText = guessCount === 1 ? "round" : "rounds";
   const normalDuration = 2 * guessCount - 1;
   const hardDuration = guessCount * 0.5;
-  const snippetDuration = hardMode ? hardDuration : normalDuration;
+  const snippetDuration = hardMode ? hardDuration : normalDuration; // use hardDuration if hardMode
   const gameOver = guessCount > 5;
+
   const shareString = `Snippet.io ${guessCount}/5\n` +
   guesses.map(g => (g.correct ? "✅" : "❌")).join("") +
-  "\n\nI played Snippet.io!";
 
+  // keep track of streaks in browser storage between sessions
+  "\n\nI played Snippet.io!";
+  const [streak, setStreak] = useState(() => {
+  return Number(localStorage.getItem("streak")) || 0;
+});
 
   // code to run after page loads
   useEffect(() => {
@@ -45,16 +51,28 @@ function App() {
       .catch(err => console.error("Error fetching track:", err));
   }, []);
 
+  useEffect(() => {
+  if (gameOver) { // if player loses
+    setStreak(0);
+  }
+}, [gameOver]);
+
+  useEffect(() => {
+  localStorage.setItem("streak", streak);
+}, [streak]);
+
   function playSnippet() {
     if (!audio || startTime === null) return;
 
     const duration = snippetDuration;
 
     audio.currentTime = startTime;
+    setIsPlaying(true);
     audio.play();
 
     setTimeout(() => {
       audio.pause();
+      setIsPlaying(false);
     }, duration * 1000);
   }
 
@@ -78,6 +96,7 @@ function App() {
       .includes(track.title.toLowerCase());
   
     if (isCorrect) {
+      setStreak(streak + 1);
       setRevealed(true);
       setGuesses([...guesses, {
           text: normalizedGuess,
@@ -143,6 +162,7 @@ const handleCopy = async () => {
         {!revealed && <p>Guess the song!</p>}
 
         <h2>Round {guessCount} / 5</h2>
+        <p>🔥 Streak: {streak}</p>
 
         {revealed && (
           <div>
@@ -172,7 +192,6 @@ const handleCopy = async () => {
     <span className="slider"></span>
   </label>
 )}
-
 {!revealed && (
   <span>
     Hard Mode {hardMode ? "ON" : "OFF"}
@@ -180,9 +199,12 @@ const handleCopy = async () => {
 )}
 </div>
 
+
 {!revealed && (
-        <button onClick={playSnippet}>
-          Play Snippet ({snippetDuration}s)
+        <button onClick={playSnippet} disabled={isPlaying}>
+          {isPlaying
+    ? "Playing..."
+    : `Play Snippet (${snippetDuration}s)`} 
         </button>
 )}
 
