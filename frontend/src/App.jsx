@@ -169,12 +169,15 @@ const handleCopy = async () => {
             Congratulations! You have guessed the song in {guessCount} {guessText}!
             <p><strong>{track.title}</strong></p>
             <p>{track.artist}</p>
+
+            <div className="win-buttons">
             <button onClick={resetGame}>
               Play Again
               </button>
               <button onClick={handleCopy}>
                 {copied ? "Copied!" : "Copy Results"}
                 </button>
+                </div>
           </div>
         )}
 
@@ -208,7 +211,7 @@ const handleCopy = async () => {
         </button>
 )}
 
-{/* dynamically created disabled textboxes showing incorrect guesses */}
+{/* dynamically creates disabled textboxes showing incorrect guesses */}
 {guesses.map((guess, index) => (
   <div className="guess-row" key={index}>
     <input

@@ -1,23 +1,24 @@
-/* fonts/styles */
+
+
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #0f172a;
+  font-family: "VT323", monospace;
+  background: #222129;
   color: white;
+  overflow: hidden;
+  
 
   display: flex;
   justify-content: center;
+  align-items: center;
+  min-height: 100vh;
 }
 
-/* app container */
+/* app container - empty bc we don't need a card */
 .container {
-  margin-top: 50px;
-  width: 500px;
-  padding: 500px;
-  background: #1e293b;
-  border-radius: 30px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+
 }
+
 
 .section {
   margin-top: 16px;
@@ -26,11 +27,12 @@ body {
 /* headings */
 h1 {
   text-align: center;
+  font-family: "VT323", monospace
 }
 
 /* buttons */
 button {
-  width: 100%;
+  width: 50%;
   padding: 12px;
   margin-top: 10px;
 
@@ -38,16 +40,17 @@ button {
   border-radius: 8px;
   cursor: pointer;
 
-  background: #3b82f6;
-  color: white;
+  background: #ffa86a;
+  color: #352d2e;
   font-weight: bold;
   font-size: 14px;
+  font-family: "VT323", monospace;
 
   transition: transform 0.1s, background 0.2s;
 }
 
 button:hover {
-  background: #2563eb;
+  background: #fc8733;
   transform: scale(1.02);
 }
 
@@ -60,11 +63,24 @@ button:disabled {
   cursor: not-allowed;
 }
 
+/* win screen buttons */
+.win-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  margin-top: 15px;
+}
+
 /* input field */
 input {
-  width: 100%;
+  width: 50%;
   padding: 12px;
   margin-top: 10px;
+  margin: 0 auto;
+  font-family: "VT323", monospace;
+
+  
 
   border-radius: 3px;
   border: none;
@@ -87,6 +103,7 @@ h1 {
 h2 {
   text-align: center;
   margin-bottom: 10px;
+  font-family: "VT323", monospace;
 }
 
 p {
@@ -109,7 +126,9 @@ input:disabled {
 .guess-row {
   display: flex;
   align-items: center;
+  justify-content:center;
   gap: 10px;
+
 }
 
 .guess-row input {
@@ -118,10 +137,14 @@ input:disabled {
 
 .guess-icon {
   font-size: 20px;
-  align-items:center;
-  justify-content:center;
   height:34px;
-  transform:translateY(7px);
+  width:24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform:translate(-270px, 5px)
+
+  
 }
 
 
