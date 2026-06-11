@@ -14,6 +14,7 @@ function App() {
   const [hardMode, setHardMode] = useState(false);
   const [revealed, setRevealed] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [setupComplete, setSetupComplete] = useState(false);
 
   const gameStarted = guessCount > 1;
   const guessText = guessCount === 1 ? "round" : "rounds";
@@ -22,17 +23,18 @@ function App() {
   const snippetDuration = hardMode ? hardDuration : normalDuration; // use hardDuration if hardMode
   const gameOver = guessCount > 5;
 
+
   const shareString = `Snippet.io ${guessCount}/5\n` +
   guesses.map(g => (g.correct ? "✅" : "❌")).join("") +
-
-  // keep track of streaks in browser storage between sessions
   "\n\nI played Snippet.io!";
+  const [playlistUrl, setPlaylistUrl] = useState(
+  localStorage.getItem("playlistUrl") || ""
+);
   const [streak, setStreak] = useState(() => {
   return Number(localStorage.getItem("streak")) || 0;
 });
 
-  // code to run after page loads
-  useEffect(() => {
+  function loadTrack() {
     fetch("http://127.0.0.1:8000/track")
       .then(res => res.json())
       .then(data => {
@@ -49,7 +51,7 @@ function App() {
         });
       })
       .catch(err => console.error("Error fetching track:", err));
-  }, []);
+}
 
   useEffect(() => {
   if (gameOver) { // if player loses
@@ -146,7 +148,25 @@ const handleCopy = async () => {
     <h1>Snippet.io</h1>
 
     {!track ? (
-      <p>Loading...</p>
+      <div>
+        <p>Paste a Spotify playlist URL</p>
+
+      <input
+        type="text"
+        value={playlistUrl}
+        onChange={(e) => setPlaylistUrl(e.target.value)}
+        placeholder="https://open.spotify.com/playlist/..."
+      />
+      <button
+        onClick={() => {
+          localStorage.setItem("playlistUrl", playlistUrl);
+          setSetupComplete(true);
+          loadTrack();
+        }}
+      >
+        Start Game
+      </button>
+      </div>
     ) : gameOver && !revealed ? (
       <div className="win">
         <h2>Game Over!</h2>
