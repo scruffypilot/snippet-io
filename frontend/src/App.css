@@ -72,6 +72,12 @@ button:disabled {
   margin-top: 15px;
 }
 
+.error {
+  color: #ff6b6b;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
 /* input field */
 input {
   width: 50%;
