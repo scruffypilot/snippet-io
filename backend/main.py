@@ -3,8 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 import random
+import uuid
 
 app = FastAPI()
+games = {}
 
 
 # generic track model class
@@ -13,6 +15,11 @@ class Track(BaseModel):
     artist: str
     preview_url: str
 
+# for shareable link purposes later
+class GameState(BaseModel):
+    game_id: str
+    track: Track
+    start_time: float # we prob want start time saved in backend for easier time retrieving in gamestate later
 
 # to be generated with data scraped from a user's Spotify account or playlist later
 TRACKS = [
@@ -42,6 +49,23 @@ def home():
 @app.get("/track", response_model=Track)
 def get_track():
     return random.choice(TRACKS)
+
+# POST request to backend to start game (eventually will properly implement)
+@app.post("/start-game")
+def start_game():
+    game = GameState(
+        game_id=str(uuid.uuid4()),
+        track=random.choice(TRACKS),
+        start_time=random.random() * 20
+    )
+    games[game.game_id] = game
+    return game
+
+# GET request to get game by game id for link sharing
+@app.get("/game/{game_id}", response_model=GameState)
+def get_game(game_id: str):
+    return games[game_id]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
