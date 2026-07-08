@@ -6,6 +6,7 @@ function App() {
   const [audio, setAudio] = useState(null);
   const [startTime, setStartTime] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [gameId, setGameId] = useState(null);
 
   const [guessInput, setGuessInput] = useState("");
   const [guesses, setGuesses] = useState([]);
@@ -36,24 +37,22 @@ function App() {
   });
 
   function loadTrack() {
-    fetch("http://127.0.0.1:8000/track")
-      .then(res => res.json())
-      .then(data => {
-        setTrack(data);
+  fetch("http://127.0.0.1:8000/start-game", {
+    method: "POST",
+  })
+    .then(res => res.json())
+    .then(data => {
+      setTrack(data.track);
 
-        const audioObj = new Audio(data.preview_url);
+      const audioObj = new Audio(data.track.preview_url);
 
-        audioObj.addEventListener("loadedmetadata", () => {
-          const maxStart = Math.min(22, audioObj.duration - 1);
-          const randomStart = Math.random() * maxStart;
-
-          setStartTime(randomStart);
-          setAudio(audioObj);
-        });
-      })
-      .catch(err => console.error("Error fetching track:", err));
-  }
-
+      audioObj.addEventListener("loadedmetadata", () => {
+        setStartTime(data.start_time);
+        setAudio(audioObj);
+      });
+    })
+    .catch(err => console.error("Error fetching track:", err));
+}
   useEffect(() => {
     if (gameOver) { // if player loses
       setStreak(0);
@@ -146,10 +145,11 @@ function App() {
     setRevealed(false);
 
     // set new random start time
-    const maxStart = Math.min(22, audio.duration - 1);
-    const randomStart = Math.random() * maxStart;
+    //const maxStart = Math.min(22, audio.duration - 1);
+    //const randomStart = Math.random() * maxStart;
 
-    setStartTime(randomStart);
+    loadTrack();
+
   }
 
   // for copying results after game win

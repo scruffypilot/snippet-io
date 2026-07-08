@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -56,7 +56,7 @@ def start_game():
     game = GameState(
         game_id=str(uuid.uuid4()),
         track=random.choice(TRACKS),
-        start_time=random.random() * 20
+        start_time=random.uniform(0, 22)
     )
     games[game.game_id] = game
     return game
@@ -64,6 +64,11 @@ def start_game():
 # GET request to get game by game id for link sharing
 @app.get("/game/{game_id}", response_model=GameState)
 def get_game(game_id: str):
+    if game_id not in games:
+        raise HTTPException(
+            status_code=404,
+            detail="Game not found"
+        )
     return games[game_id]
 
 app.add_middleware(
