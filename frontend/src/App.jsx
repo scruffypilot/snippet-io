@@ -163,6 +163,12 @@ function App() {
     }, 2000);
   };
 
+  async function copyGameLink() {
+  const shareUrl = `${window.location.origin}?game=${gameId}`;
+  await navigator.clipboard.writeText(shareUrl);
+}
+
+
   return (
     <div className="container">
       <h1>Snippet.io</h1>
@@ -193,7 +199,7 @@ function App() {
           </button>
         </div>
       ) : gameOver && !revealed ? (
-        <div className="win">
+        <div className="win-buttons">
           <h2>Game Over!</h2>
           <p>The song was:</p>
           <p><strong>{track.title}</strong></p>
@@ -201,6 +207,9 @@ function App() {
           <button onClick={resetGame}>
             Play Again
           </button>
+                    <button onClick={copyGameLink}>
+    Share This Game
+</button>
         </div>
       ) : (
         <div>
@@ -222,6 +231,9 @@ function App() {
                 <button onClick={handleCopy}>
                   {copied ? "Copied!" : "Copy Results"}
                 </button>
+                <button onClick={copyGameLink}>
+    Share This Game
+</button>
               </div>
             </div>
           )}
