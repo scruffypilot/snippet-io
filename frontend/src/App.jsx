@@ -7,6 +7,7 @@ function App() {
   const [startTime, setStartTime] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [gameId, setGameId] = useState(null);
+  const [gameHardMode, setGameHardMode] = useState(false);
 
   const [guessInput, setGuessInput] = useState("");
   const [guesses, setGuesses] = useState([]);
@@ -22,7 +23,7 @@ function App() {
   const guessText = guessCount === 1 ? "round" : "rounds";
   const normalDuration = 2 * guessCount - 1;
   const hardDuration = guessCount * 0.5;
-  const snippetDuration = hardMode ? hardDuration : normalDuration; // use hardDuration if hardMode
+  const snippetDuration = gameHardMode ? hardDuration : normalDuration; // use hardDuration if hardMode
   const gameOver = guessCount > 5;
 
 
@@ -39,10 +40,19 @@ function App() {
   function loadTrack() {
   fetch("http://127.0.0.1:8000/start-game", {
     method: "POST",
+      headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    hard_mode: hardMode,
+  }),
   })
     .then(res => res.json())
     .then(data => {
       setTrack(data.track);
+      setGameId(data.game_id);
+      setGameHardMode(data.hard_mode);
+      
 
       const audioObj = new Audio(data.track.preview_url);
 
@@ -197,7 +207,31 @@ function App() {
           >
             Start Game
           </button>
+          <div className="toggle-row">
+            {!revealed && (
+              <label className="switch">
+                <input
+                  type="checkbox"
+                  checked={hardMode}
+                  disabled={gameStarted}
+                  onChange={() => setHardMode(!hardMode)}
+                />
+
+                <span className="slider"></span>
+              </label>
+            )}
+            {!revealed && (
+              <span>
+                Hard Mode {hardMode ? "ON" : "OFF"}
+              </span>
+              
+            )}
+          </div>
+          <p className = "hint">Games with hard mode enabled reveal much less of the song with each guess.</p>
         </div>
+        
+        
+
       ) : gameOver && !revealed ? (
         <div className="win-buttons">
           <h2>Game Over!</h2>
@@ -237,27 +271,6 @@ function App() {
               </div>
             </div>
           )}
-
-          <div className="toggle-row">
-
-            {!revealed && (
-              <label className="switch">
-                <input
-                  type="checkbox"
-                  checked={hardMode}
-                  disabled={gameStarted}
-                  onChange={() => setHardMode(!hardMode)}
-                />
-
-                <span className="slider"></span>
-              </label>
-            )}
-            {!revealed && (
-              <span>
-                Hard Mode {hardMode ? "ON" : "OFF"}
-              </span>
-            )}
-          </div>
 
 
           {!revealed && (

@@ -19,7 +19,13 @@ class Track(BaseModel):
 class GameState(BaseModel):
     game_id: str
     track: Track
-    start_time: float # we prob want start time saved in backend for easier time retrieving in gamestate later
+    start_time: float # we prob want start time saved in backend for easier time retrieving in gamestate late
+    hard_mode: bool
+
+# object getting info from frontend
+class StartGameRequest(BaseModel):
+    hard_mode: bool
+
 
 # to be generated with data scraped from a user's Spotify account or playlist later
 TRACKS = [
@@ -52,11 +58,12 @@ def get_track():
 
 # POST request to backend to start game (eventually will properly implement)
 @app.post("/start-game")
-def start_game():
+def start_game(request: StartGameRequest):
     game = GameState(
         game_id=str(uuid.uuid4()),
         track=random.choice(TRACKS),
-        start_time=random.uniform(0, 22)
+        start_time=random.uniform(0, 22),
+        hard_mode=request.hard_mode
     )
     games[game.game_id] = game
     return game

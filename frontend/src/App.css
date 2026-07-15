@@ -78,6 +78,12 @@ button:disabled {
   font-size: 14px;
 }
 
+.hint {
+  margin-top: 5px;
+  font-size: 12px;
+  color: #d9ff03;
+}
+
 /* input field */
 input {
   width: 50%;
