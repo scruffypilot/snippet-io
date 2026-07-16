@@ -32,12 +32,12 @@ function App() {
     "\n\nI played Snippet.io!";
   const [playlistUrl, setPlaylistUrl] = useState(
     localStorage.getItem("playlistUrl") || ""
-  );
+  ); 
   const [streak, setStreak] = useState(() => {
     return Number(localStorage.getItem("streak")) || 0;
   });
 
-  function loadTrack() {
+  function startGame() {
   fetch("http://127.0.0.1:8000/start-game", {
     method: "POST",
       headers: {
@@ -63,12 +63,45 @@ function App() {
     })
     .catch(err => console.error("Error fetching track:", err));
 }
+
+function loadGame(gameId) {
+  fetch(`http://127.0.0.1:8000/game/${gameId}`)
+    .then(res => res.json())
+    .then(data => {
+      setTrack(data.track);
+      setGameId(data.game_id);
+      setGameHardMode(data.hard_mode);
+      
+
+      const audioObj = new Audio(data.track.preview_url);
+
+      audioObj.addEventListener("loadedmetadata", () => {
+        setStartTime(data.start_time);
+        setAudio(audioObj);
+    });
+})
+    .catch(err => console.error("Error fetching track:", err));
+}
+
+  // load game from shared url link if one is detected
+  useEffect(() => {
+    const path = window.location.pathname;
+    
+    if (path.startsWith("?game=")) {
+      const urlGameId = path.split("/")[2];
+      loadGame(urlGameId);
+  }
+    
+  }, []);
+
+  // checking for game over condition
   useEffect(() => {
     if (gameOver) { // if player loses
       setStreak(0);
     }
   }, [gameOver]);
 
+  // dynamically updating streak value
   useEffect(() => {
     localStorage.setItem("streak", streak);
   }, [streak]);
@@ -103,7 +136,7 @@ function App() {
     }
     setUrlError("");
     setSetupComplete(true);
-    loadTrack();
+    startGame();
   }
 
   function handleGuess() {
@@ -158,7 +191,7 @@ function App() {
     //const maxStart = Math.min(22, audio.duration - 1);
     //const randomStart = Math.random() * maxStart;
 
-    loadTrack();
+    startGame();
 
   }
 
@@ -251,6 +284,7 @@ function App() {
 
           <h2>Round {guessCount} / 5</h2>
           <p>🔥 Streak: {streak}</p>
+          <p>Hard Mode: {hardMode ? "ON" : "OFF"}</p>
 
           {revealed && (
             <div>
