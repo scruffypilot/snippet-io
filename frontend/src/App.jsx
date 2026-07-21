@@ -7,7 +7,6 @@ function App() {
   const [startTime, setStartTime] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [gameId, setGameId] = useState(null);
-  const [gameHardMode, setGameHardMode] = useState(false);
 
   const [guessInput, setGuessInput] = useState("");
   const [guesses, setGuesses] = useState([]);
@@ -23,7 +22,7 @@ function App() {
   const guessText = guessCount === 1 ? "round" : "rounds";
   const normalDuration = 2 * guessCount - 1;
   const hardDuration = guessCount * 0.5;
-  const snippetDuration = gameHardMode ? hardDuration : normalDuration; // use hardDuration if hardMode
+  const snippetDuration = hardMode ? hardDuration : normalDuration; // use hardDuration if hardMode
   const gameOver = guessCount > 5;
 
 
@@ -51,7 +50,7 @@ function App() {
     .then(data => {
       setTrack(data.track);
       setGameId(data.game_id);
-      setGameHardMode(data.hard_mode);
+      setHardMode(data.hard_mode);
       
 
       const audioObj = new Audio(data.track.preview_url);
@@ -64,15 +63,15 @@ function App() {
     .catch(err => console.error("Error fetching track:", err));
 }
 
+/* load game from link with gameID */
 function loadGame(gameId) {
   fetch(`http://127.0.0.1:8000/game/${gameId}`)
     .then(res => res.json())
     .then(data => {
       setTrack(data.track);
       setGameId(data.game_id);
-      setGameHardMode(data.hard_mode);
+      setHardMode(data.hard_mode);
       
-
       const audioObj = new Audio(data.track.preview_url);
 
       audioObj.addEventListener("loadedmetadata", () => {
@@ -87,8 +86,8 @@ function loadGame(gameId) {
   useEffect(() => {
     const path = window.location.pathname;
     
-    if (path.startsWith("?game=")) {
-      const urlGameId = path.split("/")[2];
+    if (path.startsWith("/game/")) {
+      const urlGameId = path.split("/game/")[1];
       loadGame(urlGameId);
   }
     
@@ -207,7 +206,7 @@ function loadGame(gameId) {
   };
 
   async function copyGameLink() {
-  const shareUrl = `${window.location.origin}?game=${gameId}`;
+  const shareUrl = `${window.location.origin}/game/${gameId}`;
   await navigator.clipboard.writeText(shareUrl);
 }
 
