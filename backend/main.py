@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from database import get_connection
 
 import random
 import uuid
@@ -22,9 +23,22 @@ class GameState(BaseModel):
     start_time: float # we prob want start time saved in backend for easier time retrieving in gamestate late
     hard_mode: bool
 
-# object getting info from frontend
+    # cumulative game stats 
+    plays: int = 0
+    wins: int = 0
+    losses: int = 0
+    total_guesses: int = 0
+
+
+# object getting info from frontend on game creation
 class StartGameRequest(BaseModel):
     hard_mode: bool
+
+# object getting info from backend on game finish
+class FinishGameRequest(BaseModel):
+    game_id: str
+    won: bool
+    guesses: int
 
 
 # to be generated with data scraped from a user's Spotify account or playlist later
@@ -49,7 +63,11 @@ TRACKS = [
 
 @app.get("/")
 def home():
-    return {"message": "the plup backend is running!"}
+    connection = get_connection()
+
+    connection.close()
+
+    return {"message": "Database connection successful!"}
 
 
 @app.get("/track", response_model=Track)
@@ -67,6 +85,29 @@ def start_game(request: StartGameRequest):
     )
     games[game.game_id] = game
     return game
+
+# POST request so backend can update cumulative game stats
+@app.post("/finish-game")
+def finish_game(request: FinishGameRequest):
+    if request.game_id not in games:
+        raise HTTPException(
+        status_code=404,
+        detail="Game not found")
+    game = games[request.game_id]
+    game.plays += 1
+    game.total_guesses += request.guesses
+
+    if request.won:
+        game.wins +=1
+    else:
+        game.losses += 1
+
+    return game
+    
+
+
+
+
 
 # GET request to get game by game id for link sharing
 @app.get("/game/{game_id}", response_model=GameState)

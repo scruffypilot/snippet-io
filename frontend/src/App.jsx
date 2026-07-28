@@ -7,6 +7,7 @@ function App() {
   const [startTime, setStartTime] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [gameId, setGameId] = useState(null);
+  const [gameStats, setGameStats] = useState(null);
 
   const [guessInput, setGuessInput] = useState("");
   const [guesses, setGuesses] = useState([]);
@@ -17,6 +18,7 @@ function App() {
   const [copied, setCopied] = useState(false);
   const [setupComplete, setSetupComplete] = useState(false);
   const [urlError, setUrlError] = useState("");
+
 
   const gameStarted = guessCount > 1;
   const guessText = guessCount === 1 ? "round" : "rounds";
@@ -97,6 +99,7 @@ function loadGame(gameId) {
   useEffect(() => {
     if (gameOver) { // if player loses
       setStreak(0);
+      recordGameStats(false);
     }
   }, [gameOver]);
 
@@ -164,6 +167,7 @@ function loadGame(gameId) {
         text: normalizedGuess,
         correct: true
       }])
+      recordGameStats(true);
       setGuessInput("");
     } else {
       if (guessCount < 5) {
@@ -176,6 +180,25 @@ function loadGame(gameId) {
       }
       setGuessCount(guessCount + 1);
     }
+  }
+
+  function recordGameStats(won) {
+  fetch("http://127.0.0.1:8000/finish-game", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    game_id: gameId,
+    won: won,
+    guesses: guessCount,
+  }),
+})
+  .then(res => res.json())
+  .then(data => {
+    setGameStats(data)
+  });
+
   }
 
 
@@ -276,6 +299,16 @@ function loadGame(gameId) {
                     <button onClick={copyGameLink}>
     Share This Game
 </button>
+{gameStats && (
+  <div>
+    <p>Played {gameStats.plays} times</p>
+    <p>Wins: {gameStats.wins}</p>
+    <p>Losses: {gameStats.losses}</p>
+    <p>
+      Win Rate: {((gameStats.wins / gameStats.plays) * 100).toFixed(1)}%
+    </p>
+  </div>
+)}
         </div>
       ) : (
         <div>
@@ -301,6 +334,16 @@ function loadGame(gameId) {
                 <button onClick={copyGameLink}>
     Share This Game
 </button>
+{gameStats && (
+  <div>
+    <p>Played {gameStats.plays} times</p>
+    <p>Wins: {gameStats.wins}</p>
+    <p>Losses: {gameStats.losses}</p>
+    <p>
+      Win Rate: {((gameStats.wins / gameStats.plays) * 100).toFixed(1)}%
+    </p>
+  </div>
+)}
               </div>
             </div>
           )}
