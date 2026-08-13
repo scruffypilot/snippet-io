@@ -103,7 +103,23 @@ def finish_game(request: FinishGameRequest):
         game.losses += 1
 
     return game
-    
+
+@app.get("/db-test")
+def test_game():
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute(
+        "SELECT * FROM games WHERE game_id = %s",
+        ("test-game-123",)
+    )
+
+    game = cursor.fetchone()
+
+    cursor.close()
+    connection.close()
+
+    return {"game": game}
 
 
 
