@@ -83,12 +83,43 @@ def start_game(request: StartGameRequest):
         start_time=random.uniform(0, 22),
         hard_mode=request.hard_mode
     )
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute(
+    """
+    INSERT INTO games (
+        game_id,
+        title,
+        artist,
+        preview_url,
+        start_time,
+        hard_mode
+    )
+    VALUES (%s, %s, %s, %s, %s, %s)
+    """,
+    (
+        game.game_id,
+        game.track.title,
+        game.track.artist,
+        game.track.preview_url,
+        game.start_time,
+        game.hard_mode
+    )
+)
+    connection.commit()
+    cursor.close()
+    connection.close()
+
     games[game.game_id] = game
     return game
 
 # POST request so backend can update cumulative game stats
 @app.post("/finish-game")
 def finish_game(request: FinishGameRequest):
+    print("won =", request.won)
+    print("type =", type(request.won))
+
     if request.game_id not in games:
         raise HTTPException(
         status_code=404,
@@ -97,10 +128,37 @@ def finish_game(request: FinishGameRequest):
     game.plays += 1
     game.total_guesses += request.guesses
 
+    connection = get_connection()
+    cursor = connection.cursor()
+
     if request.won:
         game.wins +=1
+        cursor.execute(
+            """
+            UPDATE games
+            SET
+                plays = plays + 1,
+                wins = wins + 1,
+                total_guesses = total_guesses + %s
+            WHERE game_id = %s
+            """,
+        )
     else:
         game.losses += 1
+        cursor.execute(
+            """
+            UPDATE games
+            SET
+                plays = plays + 1,
+                losses = losses + 1,
+                total_guesses = total_guesses + %s
+            WHERE game_id = %s
+            """,
+            (request.guesses, request.game_id)
+        )
+    connection.commit()
+    cursor.close()
+    connection.close()
 
     return game
 
@@ -121,19 +179,56 @@ def test_game():
 
     return {"game": game}
 
-
-
-
-
 # GET request to get game by game id for link sharing
-@app.get("/game/{game_id}", response_model=GameState)
+@app.get("/game/{game_id}")
 def get_game(game_id: str):
-    if game_id not in games:
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute(
+        """
+        SELECT
+            game_id,
+            title,
+            artist,
+            preview_url,
+            start_time,
+            hard_mode,
+            plays,
+            wins,
+            losses,
+            total_guesses
+        FROM games
+        WHERE game_id = %s
+        """,
+        (game_id,)
+    )
+
+    game = cursor.fetchone()
+
+    cursor.close()
+    connection.close()
+
+    if game is None:
         raise HTTPException(
             status_code=404,
             detail="Game not found"
         )
-    return games[game_id]
+
+    return {
+        "game_id": game[0],
+        "track": {
+            "title": game[1],
+            "artist": game[2],
+            "preview_url": game[3]
+        },
+        "start_time": game[4],
+        "hard_mode": game[5],
+        "plays": game[6],
+        "wins": game[7],
+        "losses": game[8],
+        "total_guesses": game[9]
+    }
 
 app.add_middleware(
     CORSMiddleware,
