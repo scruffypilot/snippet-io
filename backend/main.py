@@ -117,13 +117,11 @@ def start_game(request: StartGameRequest):
 # POST request so backend can update cumulative game stats
 @app.post("/finish-game")
 def finish_game(request: FinishGameRequest):
+    print("FINISH GAME REQUEST:", request.model_dump())
     print("won =", request.won)
     print("type =", type(request.won))
+    print("GAME ID:", request.game_id)
 
-    if request.game_id not in games:
-        raise HTTPException(
-        status_code=404,
-        detail="Game not found")
     game = games[request.game_id]
     game.plays += 1
     game.total_guesses += request.guesses
@@ -142,6 +140,7 @@ def finish_game(request: FinishGameRequest):
                 total_guesses = total_guesses + %s
             WHERE game_id = %s
             """,
+        (request.guesses, request.game_id)
         )
     else:
         game.losses += 1

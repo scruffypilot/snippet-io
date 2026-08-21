@@ -183,7 +183,6 @@ function loadGame(gameId) {
   }
 
   function recordGameStats(won) {
-  consosle.log(won)
   fetch("http://127.0.0.1:8000/finish-game", {
   method: "POST",
   headers: {
