@@ -296,9 +296,13 @@ function loadGame(gameId) {
           <button onClick={resetGame}>
             Play Again
           </button>
+          <button onClick={handleCopy}>
+                  {copied ? "Copied!" : "Copy Results"}
+                </button>
                     <button onClick={copyGameLink}>
     Share This Game
 </button>
+/* TODO: Figure out why the generation of the guess icons happens on the left and not the right here */
 {gameStats && (
   <div>
     <p>Played {gameStats.plays} times</p>
@@ -307,6 +311,18 @@ function loadGame(gameId) {
     <p>
       Win Rate: {((gameStats.wins / gameStats.plays) * 100).toFixed(1)}%
     </p>
+    {guesses.map((guess, index) => (
+      <div className="guess-row" key={index}>
+        <input
+          type="text"
+          value={guess.text}
+          disabled
+        />
+        <span className="guess-icon">
+          {guess.correct ? "✅" : "❌"}
+        </span>
+      </div>
+    ))}
   </div>
 )}
         </div>
