@@ -138,27 +138,24 @@ input:disabled {
 .guess-row {
   display: flex;
   align-items: center;
-  justify-content:center;
-  gap: 10px;
-
+  justify-content: center;
+  gap: 1%;
 }
 
 .guess-row input {
-  height:34px;
+  width: 50%;
+  height: 34px;
+  margin: 0;
 }
 
 .guess-icon {
   font-size: 20px;
-  height:34px;
-  width:24px;
+  height: 34px;
+  width: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transform:translate(-270px, 5px)
-
-  
 }
-
 
 /* spacing */
 p {

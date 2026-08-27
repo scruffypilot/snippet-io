@@ -170,7 +170,7 @@ function loadGame(gameId) {
       recordGameStats(true);
       setGuessInput("");
     } else {
-      if (guessCount < 5) {
+      if (guessCount <= 5) {
         setGuesses([...guesses, {
           text: normalizedGuess,
           correct: false
@@ -285,48 +285,56 @@ function loadGame(gameId) {
           <p className = "hint">Games with hard mode enabled reveal much less of the song with each guess.</p>
         </div>
         
-        
-
-      ) : gameOver && !revealed ? (
-        <div className="win-buttons">
-          <h2>Game Over!</h2>
-          <p>The song was:</p>
-          <p><strong>{track.title}</strong></p>
-          <p>{track.artist}</p>
-          <button onClick={resetGame}>
-            Play Again
-          </button>
-          <button onClick={handleCopy}>
-                  {copied ? "Copied!" : "Copy Results"}
-                </button>
-                    <button onClick={copyGameLink}>
-    Share This Game
-</button>
-/* TODO: Figure out why the generation of the guess icons happens on the left and not the right here */
-{gameStats && (
+) : gameOver && !revealed ? (
   <div>
-    <p>Played {gameStats.plays} times</p>
-    <p>Wins: {gameStats.wins}</p>
-    <p>Losses: {gameStats.losses}</p>
-    <p>
-      Win Rate: {((gameStats.wins / gameStats.plays) * 100).toFixed(1)}%
-    </p>
-    {guesses.map((guess, index) => (
-      <div className="guess-row" key={index}>
-        <input
-          type="text"
-          value={guess.text}
-          disabled
-        />
-        <span className="guess-icon">
-          {guess.correct ? "✅" : "❌"}
-        </span>
+    <h2>Game Over!</h2>
+
+    <p>The song was:</p>
+    <p><strong>{track.title}</strong></p>
+    <p>{track.artist}</p>
+
+    <div className="win-buttons">
+      <button onClick={resetGame}>
+        Play Again
+      </button>
+
+      <button onClick={handleCopy}>
+        {copied ? "Copied!" : "Copy Results"}
+      </button>
+
+      <button onClick={copyGameLink}>
+        Share This Game
+      </button>
+    </div>
+
+    {gameStats && (
+      <div className="game-stats">
+        <p>Played {gameStats.plays} times</p>
+        <p>Wins: {gameStats.wins}</p>
+        <p>Losses: {gameStats.losses}</p>
+
+        <p>
+          Win Rate: {((gameStats.wins / gameStats.plays) * 100).toFixed(1)}%
+        </p>
+
+        {guesses.map((guess, index) => (
+          <div className="guess-row" key={index}>
+            <input
+              type="text"
+              value={guess.text}
+              disabled
+            />
+
+            <span className="guess-icon">
+              {guess.correct ? "✅" : "❌"}
+            </span>
+          </div>
+        ))}
       </div>
-    ))}
+    )}
   </div>
-)}
-        </div>
-      ) : (
+) : (
+
         <div>
           {!revealed && <p>Guess the song!</p>}
 
