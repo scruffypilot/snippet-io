@@ -226,3 +226,41 @@ input:disabled + .slider {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+
+.import-section {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.import-button {
+  display: inline-block;
+  width: 50%;
+  padding: 12px;
+  box-sizing: border-box;
+
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+
+  background: #ffa86a;
+  color: #352d2e;
+  font-weight: bold;
+  font-size: 14px;
+  font-family: "VT323", monospace;
+  text-align: center;
+
+  transition: transform 0.1s, background 0.2s;
+}
+
+.import-button:hover {
+  background: #fc8733;
+  transform: scale(1.02);
+}
+
+.import-button:active {
+  transform: scale(0.98);
+}

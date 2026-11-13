@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
+import MusicLibrary from "./MusicLibrary";
 
 function App() {
   const [track, setTrack] = useState(null);
@@ -240,6 +241,9 @@ function loadGame(gameId) {
 
       {!track ? (
         <div>
+          <MusicLibrary />
+          {/*
+          // FEATURE DEPRECATED
           <p>Paste a Spotify playlist URL</p>
 
           <input
@@ -262,6 +266,7 @@ function loadGame(gameId) {
           >
             Start Game
           </button>
+          */}
           <div className="toggle-row">
             {!revealed && (
               <label className="switch">
