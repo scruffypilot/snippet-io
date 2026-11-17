@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from "react";
+import { useRef } from "react";
 
 import {
   addAudioFiles,
@@ -11,6 +12,12 @@ export default function MusicLibrary() {
   const [tracks, setTracks] = useState([]);
   const [status, setStatus] = useState("Loading library...");
   const [loading, setLoading] = useState(true);
+
+  const fileInputRef = useRef(null);
+  const folderInputRef = useRef(null);
+  const [showImportOptions, setShowImportOptions] = useState(false);
+
+
 
   async function refreshLibrary() {
     const savedTracks = await getLibraryTracks();
@@ -80,7 +87,7 @@ export default function MusicLibrary() {
         "Import failed. Check available browser storage."
       );
     }
-  }
+  } 
 
   async function handleDelete(trackId) {
     try {
@@ -99,17 +106,58 @@ export default function MusicLibrary() {
   <h2>My Music Library</h2>
   <h3>Upload music to play!</h3>
 
-  <label className="import-section">
-    <span className="import-button">Import MP3s</span>
-    <input
-      type="file"
-      accept=".mp3,audio/mpeg"
-      multiple
-      webkitdirectory=""
-      onChange={handleImport}
-      hidden
-    />
-  </label>
+ <div className="import-section">
+  <button
+    type="button"
+    onClick={() => setShowImportOptions(!showImportOptions)}
+  >
+    Import MP3s
+  </button>
+
+  {showImportOptions && (
+    <div className="import-options">
+      <button
+        type="button"
+        onClick={() => {
+          fileInputRef.current?.click();
+          setShowImportOptions(false);
+        }}
+      >
+        Import Individual MP3s
+      </button>
+
+      <button
+        type="button"
+        onClick={() => {
+          folderInputRef.current?.click();
+          setShowImportOptions(false);
+        }}
+      >
+        Import a Folder
+      </button>
+    </div>
+  )}
+</div>
+{/* Individual MP3 files */}
+<input
+  ref={fileInputRef}
+  type="file"
+  accept=".mp3,audio/mpeg"
+  multiple
+  onChange={handleImport}
+  hidden
+/>
+
+{/* Folder containing MP3 files */}
+<input
+  ref={folderInputRef}
+  type="file"
+  accept=".mp3,audio/mpeg"
+  multiple
+  webkitdirectory=""
+  onChange={handleImport}
+  hidden
+/>
 </section>
 
       <p role="status" aria-live="polite">
