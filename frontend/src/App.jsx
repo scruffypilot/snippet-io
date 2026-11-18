@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import MusicLibrary from "./MusicLibrary";
+import { getLibraryTracks } from "./musicLibraryDB";
 
 function App() {
   const [track, setTrack] = useState(null);
@@ -142,6 +143,24 @@ function loadGame(gameId) {
     startGame();
   }
 
+  async function handleStartGame() {
+  try {
+    const libraryTracks = await getLibraryTracks();
+
+    if (libraryTracks.length === 0) {
+      setUrlError("Please import at least one MP3 before starting a game.");
+      return;
+    }
+
+    setUrlError("");
+    setSetupComplete(true);
+    startGame();
+  } catch (error) {
+    console.error("Error checking music library:", error);
+    setUrlError("Couldn't access your music library. Please try again.");
+  }
+}
+
   function handleGuess() {
     if (!track) return;
     const normalizedGuess = guessInput
@@ -257,16 +276,17 @@ function loadGame(gameId) {
               }
             }}
           />
+          */}
 
           {urlError && (
             <p className="error">{urlError}</p>
           )}
           <button
-            onClick={() => handleUrlInput(playlistUrl)}
+            onClick={handleStartGame}
           >
             Start Game
           </button>
-          */}
+    
           <div className="toggle-row">
             {!revealed && (
               <label className="switch">

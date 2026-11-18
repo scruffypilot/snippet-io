@@ -100,6 +100,20 @@ export default function MusicLibrary() {
     }
   }
 
+  async function handleDeleteAll() {
+    const confirmed = window.confirm(
+    `Are you sure you want to remove all ${tracks.length} songs?`
+  );
+  if (!confirmed) return;
+
+  const removedCount = tracks.length;
+  for (const track of tracks) {
+    await deleteAudioFile(track.id);
+  }
+  await refreshLibrary();
+  setStatus(`${removedCount} songs removed.`);
+}
+
   return (
     <section className="music-library">
      <section className="music-library">
@@ -183,7 +197,17 @@ export default function MusicLibrary() {
             </li>
           ))}
         </ul>
+        
       )}
+      {tracks.length > 0 && (
+  <button
+    type="button"
+    className="remove-all-button"
+    onClick={handleDeleteAll}
+  >
+    Remove All
+  </button>
+)}
     </section>
   );
 }

@@ -291,3 +291,22 @@ input[type="file"] {
 .import-button:active {
   transform: scale(0.98);
 }
+
+/* Make song names smaller */
+.music-library li span {
+  font-size: 14px;
+}
+
+/* Make the file size text smaller */
+.music-library li small {
+  font-size: 11px;
+}
+
+/* Make Remove buttons smaller */
+.music-library li button {
+  width: auto;
+  padding: 4px 8px;
+  margin-top: 0;
+  font-size: 11px;
+  border-radius: 5px;
+}
