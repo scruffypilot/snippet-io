@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 import MusicLibrary from "./MusicLibrary";
-import { getLibraryTracks } from "./musicLibraryDB";
+import { getLibraryTracks, getAudioFile } from "./musicLibraryDB";
 
 function App() {
   const [track, setTrack] = useState(null);
@@ -10,6 +10,7 @@ function App() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [gameId, setGameId] = useState(null);
   const [gameStats, setGameStats] = useState(null);
+  
 
   const [guessInput, setGuessInput] = useState("");
   const [guesses, setGuesses] = useState([]);
@@ -40,7 +41,79 @@ function App() {
     return Number(localStorage.getItem("streak")) || 0;
   });
 
-  function startGame() {
+
+async function startGame() {
+  try {
+    // 1. Get the songs saved in the music library.
+    const libraryTracks = await getLibraryTracks();
+
+    if (libraryTracks.length === 0) {
+      setUrlError("Import at least one MP3 to start playing.");
+      return;
+    }
+
+    // 2. Pick one song at random.
+    const randomIndex = Math.floor(
+      Math.random() * libraryTracks.length
+    );
+    const selectedTrack = libraryTracks[randomIndex];
+
+    // 3. Retrieve the actual MP3 file.
+    const audioFile = await getAudioFile(selectedTrack.id);
+
+    if (!audioFile) {
+      setUrlError("Couldn't load that MP3. Please try again.");
+      return;
+    }
+
+    // 4. Create a browser URL for the local audio file.
+    const audioUrl = URL.createObjectURL(audioFile);
+    const audioObj = new Audio(audioUrl);
+
+    // 5. Use the filename as the song title for now.
+    const filename = selectedTrack.name.replace(/\.mp3$/i, "");
+    const parts = filename.split(" - ");
+
+    const localTrack = {
+      title: parts.length > 1 ? parts.slice(1).join(" - ") : filename,
+      artist: parts.length > 1 ? parts[0] : "Unknown Artist",
+    };
+
+    // 6. Wait until the browser knows the audio duration.
+    audioObj.addEventListener("loadedmetadata", () => {
+      const maxStart = Math.max(0, audioObj.duration - 1);
+      const randomStart = Math.random() * Math.min(22, maxStart);
+
+      setTrack(localTrack);
+      setAudio(audioObj);
+      setStartTime(randomStart);
+      setGameId(null);
+      setGameStats(null);
+      setGuessCount(1);
+      setGuesses([]);
+      setDispGuesses([]);
+      setGuessInput("");
+      setRevealed(false);
+      setUrlError("");
+    }, { once: true });
+
+    audioObj.addEventListener("error", () => {
+      URL.revokeObjectURL(audioUrl);
+      setUrlError("Couldn't play that MP3. Try importing it again.");
+    }, { once: true });
+
+  } catch (error) {
+    console.error("Error starting local game:", error);
+    setUrlError("Couldn't access your music library. Please try again.");
+  }
+}
+
+
+
+
+
+{/*
+  // FEATURE DEPRECATED
   fetch("http://127.0.0.1:8000/start-game", {
     method: "POST",
       headers: {
@@ -55,9 +128,7 @@ function App() {
       setTrack(data.track);
       setGameId(data.game_id);
       setHardMode(data.hard_mode);
-      
-
-      const audioObj = new Audio(data.track.preview_url);
+    
 
       audioObj.addEventListener("loadedmetadata", () => {
         setStartTime(data.start_time);
@@ -65,7 +136,8 @@ function App() {
       });
     })
     .catch(err => console.error("Error fetching track:", err));
-}
+*/}
+
 
 /* load game from link with gameID */
 function loadGame(gameId) {
