@@ -71,12 +71,12 @@ async function startGame() {
     const audioObj = new Audio(audioUrl);
 
     // 5. Use the filename as the song title for now.
-    const filename = selectedTrack.name.replace(/\.mp3$/i, "");
+    const filename = selectedTrack.title;
     const parts = filename.split(" - ");
 
     const localTrack = {
-      title: parts.length > 1 ? parts.slice(1).join(" - ") : filename,
-      artist: parts.length > 1 ? parts[0] : "Unknown Artist",
+      title: selectedTrack.title,
+      artist: selectedTrack.artist,
     };
 
     // 6. Wait until the browser knows the audio duration.
@@ -128,7 +128,6 @@ async function startGame() {
       setTrack(data.track);
       setGameId(data.game_id);
       setHardMode(data.hard_mode);
-    
 
       audioObj.addEventListener("loadedmetadata", () => {
         setStartTime(data.start_time);
